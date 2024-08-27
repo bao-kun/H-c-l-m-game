@@ -19,11 +19,11 @@ let playerPosition = {
 
 // Tải hình ảnh bản đồ
 const mapImage = new Image();
-mapImage.src = "map.png";
+mapImage.src = "./IMG/Map/map1.jpg";
 
 // Tải hình ảnh nhân vật
 const playerImage = new Image();
-playerImage.src = "player.png";
+playerImage.src = "./IMG/hero.jpg";
 
 // Tải hình ảnh kẻ thù
 const enemyImage = new Image();
