@@ -16,62 +16,55 @@ let playerPosition = {
   x: tileSize * 4,
   y: tileSize * 4,
 };
-
-// Tải hình ảnh bản đồ
-const mapImage = new Image();
-mapImage.src = "./IMG/Map/map1.jpg";
-
 // Tải hình ảnh nhân vật
 const playerImage = new Image();
 playerImage.src = "./IMG/hero.jpg";
 
 // Tải hình ảnh kẻ thù
-const enemyImage = new Image();
-enemyImage.src = "enemy.png";
+var enemyImage = new Image();
+enemyImage.src = "./IMG/Enemies/goblin1.jpg";
 
 // Tải hình ảnh vật phẩm
 const itemImage = new Image();
 itemImage.src = "item.png";
 
-// Mảng chứa các kẻ thù cho các khu vực khác nhau
-const areas = {
-  1: {
-    enemies: [
-      { x: tileSize * 2, y: tileSize * 2 },
-      { x: tileSize * 5, y: tileSize * 7 },
-      // Thêm các kẻ thù khác...
-    ],
-    items: [
-      { x: tileSize * 3, y: tileSize * 4 },
-      { x: tileSize * 8, y: tileSize * 1 },
-      // Thêm các vật phẩm khác...
-    ],
-  },
-  2: {
-    enemies: [
-      { x: tileSize * 1, y: tileSize * 1 },
-      { x: tileSize * 7, y: tileSize * 5 },
-      // Thêm các kẻ thù khác...
-    ],
-    items: [
-      { x: tileSize * 6, y: tileSize * 3 },
-      { x: tileSize * 2, y: tileSize * 8 },
-      // Thêm các vật phẩm khác...
-    ],
-  },
-  3: {
-    enemies: [
-      { x: tileSize * 4, y: tileSize * 2 },
-      { x: tileSize * 3, y: tileSize * 7 },
-      // Thêm các kẻ thù khác...
-    ],
-    items: [
-      { x: tileSize * 5, y: tileSize * 5 },
-      { x: tileSize * 8, y: tileSize * 2 },
-      // Thêm các vật phẩm khác...
-    ],
-  },
+// Mảng chứa các hình ảnh bản đồ
+const mapImages = {
+  1: new Image(),
+  2: new Image(),
+  3: new Image(),
 };
+
+// Đặt nguồn (source) cho mỗi bản đồ
+mapImages[1].src = "./IMG/Map/map1.jpg";
+mapImages[2].src = "map2.jpg";
+mapImages[3].src = "map3.jpg";
+
+// Mảng chứa kẻ thù cho mỗi khu vực
+const enemiesByArea = {
+  1: [
+    { x: tileSize * 2, y: tileSize * 2, image: enemyImage },
+    { x: tileSize * 5, y: tileSize * 7, image: enemyImage },
+    // Thêm kẻ thù cho khu vực 1...
+  ],
+  2: [
+    { x: tileSize * 3, y: tileSize * 3, image: enemyImage },
+    { x: tileSize * 6, y: tileSize * 2, image: enemyImage },
+    // Thêm kẻ thù cho khu vực 2...
+  ],
+  3: [
+    { x: tileSize * 1, y: tileSize * 1, image: enemyImage },
+    { x: tileSize * 7, y: tileSize * 5, image: enemyImage },
+    // Thêm kẻ thù cho khu vực 3...
+  ],
+};
+
+// Mảng chứa các vật phẩm
+let items = [
+  { x: tileSize * 3, y: tileSize * 4, image: itemImage },
+  { x: tileSize * 8, y: tileSize * 1, image: itemImage },
+  // Thêm các vật phẩm khác...
+];
 
 // Khu vực hiện tại
 let currentArea = 1;
@@ -79,7 +72,7 @@ let currentArea = 1;
 // Vẽ bản đồ từ hình ảnh bản đồ
 function drawMap() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(mapImages[currentArea], 0, 0, canvas.width, canvas.height);
 }
 
 // Vẽ nhân vật
@@ -93,36 +86,38 @@ function drawPlayer() {
   );
 }
 
-// Vẽ tất cả các kẻ thù trong khu vực hiện tại
+// Vẽ tất cả các kẻ thù cho khu vực hiện tại
 function drawEnemies() {
-  areas[currentArea].enemies.forEach((enemy) => {
-    ctx.drawImage(enemyImage, enemy.x + 5, enemy.y + 5, enemySize, enemySize);
+  const currentEnemies = enemiesByArea[currentArea];
+  currentEnemies.forEach((enemy) => {
+    ctx.drawImage(enemy.image, enemy.x + 5, enemy.y + 5, enemySize, enemySize);
   });
 }
 
-// Vẽ tất cả các vật phẩm trong khu vực hiện tại
+// Vẽ tất cả các vật phẩm
 function drawItems() {
-  areas[currentArea].items.forEach((item) => {
-    ctx.drawImage(itemImage, item.x + 5, item.y + 5, itemSize, itemSize);
+  items.forEach((item) => {
+    ctx.drawImage(item.image, item.x + 5, item.y + 5, itemSize, itemSize);
   });
 }
 
 // Kiểm tra va chạm giữa nhân vật và kẻ thù
 function checkCollision() {
-  areas[currentArea].enemies.forEach((enemy, index) => {
+  const currentEnemies = enemiesByArea[currentArea];
+  currentEnemies.forEach((enemy, index) => {
     if (playerPosition.x === enemy.x && playerPosition.y === enemy.y) {
       alert("Bạn đã chạm trán với kẻ thù! Trận chiến bắt đầu!");
-      areas[currentArea].enemies.splice(index, 1);
+      currentEnemies.splice(index, 1); // Loại bỏ kẻ thù khi va chạm
     }
   });
 }
 
 // Kiểm tra va chạm giữa nhân vật và vật phẩm
 function checkItemCollection() {
-  areas[currentArea].items.forEach((item, index) => {
+  items.forEach((item, index) => {
     if (playerPosition.x === item.x && playerPosition.y === item.y) {
       alert("Bạn đã thu thập một vật phẩm!");
-      areas[currentArea].items.splice(index, 1);
+      items.splice(index, 1); // Loại bỏ vật phẩm khi thu thập
     }
   });
 }
@@ -172,7 +167,12 @@ document.addEventListener("keydown", function (event) {
 });
 
 // Đảm bảo tất cả hình ảnh được tải trước khi vẽ các thành phần trò chơi
-const allImages = [mapImage, playerImage, enemyImage, itemImage];
+const allImages = [
+  ...Object.values(mapImages),
+  playerImage,
+  enemyImage,
+  itemImage,
+];
 let loadedImages = 0;
 
 allImages.forEach((image) => {
