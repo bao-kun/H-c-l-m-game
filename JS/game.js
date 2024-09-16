@@ -26,19 +26,15 @@ enemyImage.src = "./IMG/Enemies/goblin1.jpg";
 
 // Tải hình ảnh vật phẩm
 const itemImage = new Image();
-itemImage.src = "item.png";
+itemImage.src = "./IMG/Item/potion.svg";
 
 // Mảng chứa các hình ảnh bản đồ
 const mapImages = {
   1: new Image(),
-  2: new Image(),
-  3: new Image(),
 };
 
 // Đặt nguồn (source) cho mỗi bản đồ
 mapImages[1].src = "./IMG/Map/map1.jpg";
-mapImages[2].src = "map2.jpg";
-mapImages[3].src = "map3.jpg";
 
 // Mảng chứa kẻ thù cho mỗi khu vực
 const enemiesByArea = {
