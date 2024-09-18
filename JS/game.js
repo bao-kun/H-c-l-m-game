@@ -16,6 +16,7 @@ let playerPosition = {
   x: tileSize * 4,
   y: tileSize * 4,
 };
+
 // Tải hình ảnh nhân vật
 const playerImage = new Image();
 playerImage.src = "./IMG/hero.jpg";
@@ -24,12 +25,12 @@ const player = {
   y: 150,
   width: 50,
   height: 50,
-
   hp: 100,
   maxHp: 100, // Lưu HP tối đa để tính toán thanh máu
 };
+
 // Tải hình ảnh kẻ thù
-var enemyImage = new Image();
+const enemyImage = new Image();
 enemyImage.src = "./IMG/Enemies/goblin1.jpg";
 
 // Tải hình ảnh vật phẩm
@@ -43,6 +44,27 @@ const mapImages = {
 
 // Đặt nguồn (source) cho mỗi bản đồ
 mapImages[1].src = "./IMG/Map/map1.jpg";
+
+// Mảng dữ liệu bản đồ 2D cho từng khu vực
+const mapData = {
+  1: [
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+};
 
 // Mảng chứa kẻ thù cho mỗi khu vực
 const enemiesByArea = {
@@ -61,7 +83,6 @@ const enemiesByArea = {
       hp: 100,
       maxHp: 100,
     },
-    // Thêm kẻ thù cho khu vực 1...
   ],
   2: [
     {
@@ -78,7 +99,6 @@ const enemiesByArea = {
       hp: 100,
       maxHp: 100,
     },
-    // Thêm kẻ thù cho khu vực 2...
   ],
   3: [
     {
@@ -95,7 +115,6 @@ const enemiesByArea = {
       hp: 100,
       maxHp: 100,
     },
-    // Thêm kẻ thù cho khu vực 3...
   ],
 };
 
@@ -103,7 +122,6 @@ const enemiesByArea = {
 let items = [
   { x: tileSize * 3, y: tileSize * 4, image: itemImage },
   { x: tileSize * 8, y: tileSize * 1, image: itemImage },
-  // Thêm các vật phẩm khác...
 ];
 
 // Khu vực hiện tại
@@ -166,27 +184,36 @@ function drawItems() {
 function checkCollision() {
   const currentEnemies = enemiesByArea[currentArea];
   currentEnemies.forEach((enemy, index) => {
-    if (playerPosition.x === enemy.x && playerPosition.y === enemy.y) {
+    if (
+      playerPosition.x < enemy.x + enemySize &&
+      playerPosition.x + playerSize > enemy.x &&
+      playerPosition.y < enemy.y + enemySize &&
+      playerPosition.y + playerSize > enemy.y
+    ) {
       alert("Bạn đã chạm trán với kẻ thù! Trận chiến bắt đầu!");
       attack();
       currentEnemies.splice(index, 1); // Loại bỏ kẻ thù khi va chạm
     }
   });
 }
+
 function attack() {
-  if (enemiesByArea.hp > 0 && player.hp > 0) {
+  const currentEnemies = enemiesByArea[currentArea];
+  if (currentEnemies.length > 0 && player.hp > 0) {
+    let enemy = currentEnemies[0];
     let playerAttack = Math.floor(Math.random() * 10) + 5; // Sát thương từ 5-15
-    enemiesByArea.hp -= playerAttack;
-    if (enemiesByArea.hp < 0) enemiesByArea.hp = 0; // Không cho HP xuống dưới 0
+    enemy.hp -= playerAttack;
+    if (enemy.hp < 0) enemy.hp = 0; // Không cho HP xuống dưới 0
     document.getElementById(
       "log"
     ).innerText = `You hit the enemy for ${playerAttack} damage!`;
 
-    if (enemiesByArea.hp === 0) {
+    if (enemy.hp === 0) {
       document.getElementById("log").innerText += `\nYou defeated the enemy!`;
+      currentEnemies.shift(); // Loại bỏ kẻ thù đã bị đánh bại
     }
 
-    if (enemiesByArea.hp > 0) {
+    if (enemy.hp > 0) {
       setTimeout(function () {
         let enemyAttack = Math.floor(Math.random() * 10) + 5; // Sát thương từ 5-15
         player.hp -= enemyAttack;
@@ -204,10 +231,16 @@ function attack() {
     }
   }
 }
+
 // Kiểm tra va chạm giữa nhân vật và vật phẩm
 function checkItemCollection() {
   items.forEach((item, index) => {
-    if (playerPosition.x === item.x && playerPosition.y === item.y) {
+    if (
+      playerPosition.x < item.x + itemSize &&
+      playerPosition.x + playerSize > item.x &&
+      playerPosition.y < item.y + itemSize &&
+      playerPosition.y + playerSize > item.y
+    ) {
       alert("Bạn đã thu thập một vật phẩm!");
       items.splice(index, 1); // Loại bỏ vật phẩm khi thu thập
     }
@@ -231,33 +264,63 @@ function changeArea() {
   }
 }
 
-// Xử lý di chuyển nhân vật
-document.addEventListener("keydown", function (event) {
+// Di chuyển nhân vật
+function movePlayer(direction) {
+  let newX = playerPosition.x;
+  let newY = playerPosition.y;
+
+  switch (direction) {
+    case "up":
+      newY -= tileSize;
+      break;
+    case "down":
+      newY += tileSize;
+      break;
+    case "left":
+      newX -= tileSize;
+      break;
+    case "right":
+      newX += tileSize;
+      break;
+  }
+
+  const tileX = Math.floor(newX / tileSize);
+  const tileY = Math.floor(newY / tileSize);
+
+  // Kiểm tra xem ô có thể đi qua (giá trị 0)
+  if (mapData[currentArea][tileY] && mapData[currentArea][tileY][tileX] === 0) {
+    playerPosition.x = newX;
+    playerPosition.y = newY;
+
+    checkCollision(); // Kiểm tra va chạm sau khi di chuyển
+  }
+}
+
+// Xử lý sự kiện di chuyển và tấn công
+document.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "ArrowUp":
-      if (playerPosition.y > 0) playerPosition.y -= tileSize;
+      movePlayer("up");
       break;
     case "ArrowDown":
-      if (playerPosition.y < canvas.height - tileSize)
-        playerPosition.y += tileSize;
+      movePlayer("down");
       break;
     case "ArrowLeft":
-      if (playerPosition.x > 0) playerPosition.x -= tileSize;
+      movePlayer("left");
       break;
     case "ArrowRight":
-      if (playerPosition.x < canvas.width - tileSize)
-        playerPosition.x += tileSize;
+      movePlayer("right");
       break;
     case " ": // Phím cách (spacebar)
       attack(); // Gọi hàm attack khi nhấn phím cách
       break;
   }
+
   changeArea(); // Kiểm tra nếu người chơi chuyển khu vực
   drawMap();
   drawPlayer();
   drawEnemies();
   drawItems();
-  checkCollision(); // Kiểm tra va chạm với kẻ thù
   checkItemCollection(); // Kiểm tra va chạm với vật phẩm
 });
 
